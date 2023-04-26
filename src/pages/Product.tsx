@@ -1,21 +1,21 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import Button from "../components/Button";
-import Input from "../components/Input";
-import Loading from "../components/Loading";
-import Modal from "../components/Modal";
-import Rating from "../components/Rating";
-import Select from "../components/Select";
-import { Product as ProductType } from "../types/product";
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import Button from '../components/Button';
+import Input from '../components/Input';
+import Loading from '../components/Loading';
+import Modal from '../components/Modal';
+import Rating from '../components/Rating';
+import Select from '../components/Select';
+import type { Product } from '../types/product';
 
-const SIZES = ["XS", "S", "M", "L", "XL"];
+const SIZES = ['XS', 'S', 'M', 'L', 'XL'];
 
 export default function Product() {
-  const [product, setProduct] = useState<ProductType>();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [product, setProduct] = useState<Product>();
+  const [modalOpen, setModalOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [size, setSize] = useState(SIZES[0]);
-
+  const aspectRatio = 9 / 16;
   const { id } = useParams();
 
   useEffect(() => {
@@ -35,14 +35,24 @@ export default function Product() {
 
   return product ? (
     <div>
-      <h1 className="mt-10 text-center text-3xl font-bold">{product.title}</h1>
-      <div className="mx-auto	my-10 flex max-w-screen-lg flex-col flex-wrap md:flex-row">
-        <img
-          className="my-10 px-10 md:max-w-[50%]"
-          src={product.image}
-          onClick={() => setIsModalOpen(true)}
-        />
-        <div className="my-10 flex flex-col justify-between px-10 md:max-w-[50%]">
+      <h1 className='mt-10 text-center text-3xl font-bold'>{product.title}</h1>
+      <div className='mx-auto	my-10 flex max-w-screen-lg flex-col flex-wrap md:flex-row'>
+        <div
+          className='relative w-full md:w-1/2'
+        >
+          <button onClick={() => setModalOpen(true)} className='peer sr-only'>
+            press enter to enlarge image
+          </button>
+          <img
+            className='absolute inset-0 h-full w-full object-contain peer-focus-visible:ring-2 peer-focus-visible:ring-blue-600'
+            loading='lazy'
+            alt={product.title}
+            src={product.image}
+            onClick={() => setModalOpen(true)}
+          />
+        </div>
+
+        <div className='my-10 flex flex-col justify-between px-10 md:w-1/2'>
           <div>
             <p>
               <strong>Description</strong>
@@ -54,25 +64,40 @@ export default function Product() {
           <div>
             <Select
               items={SIZES}
-              label="Size"
+              label='Size'
               selectedItem={size}
               setSelectedItem={setSize}
             />
             <Input
-              onChange={(e) => setQuantity(parseInt(e.target.value))}
+              id='quantity'
               value={quantity}
+              onChange={(value) => setQuantity(value)}
             >
               Quantity
             </Input>
-            <Button onClick={addToCart}>Add to cart</Button>
+            <Button onClick={addToCart} aria-label='Add to cart'>
+              Add to cart
+            </Button>
           </div>
         </div>
       </div>
 
-      {isModalOpen && (
-        <Modal setOpen={setIsModalOpen}>
+      {modalOpen && (
+        <Modal setOpen={setModalOpen} open={modalOpen}>
           <h1>{product.title}</h1>
-          <img className="mt-2" src={product.image} />
+          <div
+            className='relative w-full'
+            style={{
+              paddingTop: `${100 / aspectRatio}%`,
+            }}
+          >
+            <img
+              alt=''
+              src={product.image}
+              className='absolute inset-0 h-full w-full object-contain'
+            />
+          </div>
+          <Button onClick={() => setModalOpen(false)}>Close Modal</Button>
         </Modal>
       )}
     </div>
