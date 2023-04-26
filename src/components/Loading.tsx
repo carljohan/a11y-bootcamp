@@ -5,6 +5,7 @@ export default function Loading() {
   return (
     <div className="flex h-screen items-center justify-center">
       <img
+        alt="Loading"
         className="h-20 w-20"
         src={Math.round(Math.random()) ? star : hole}
       />
